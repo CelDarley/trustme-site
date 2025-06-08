@@ -1,4 +1,3 @@
-
 <template>
   <div class="login">
     <section class="section">
@@ -55,7 +54,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { authService } from '../../services/auth'
 
 export default {
   name: 'Login',
@@ -75,24 +74,24 @@ export default {
         this.loading = true
         this.error = ''
         
-        const response = await axios.post('/login', this.form)
+        console.log('Iniciando login com:', this.form)
+        const response = await authService.login(this.form)
+        console.log('Login bem sucedido:', response)
         
-        if (response.data.success) {
-          // Store token
-          localStorage.setItem('auth_token', response.data.token)
-          axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
-          
-          // Redirect to dashboard or intended page
-          const redirect = this.$route.query.redirect || '/dashboard'
-          this.$router.push(redirect)
-        }
+        // Redirect to dashboard or intended page
+        const redirect = this.$route.query.redirect || '/dashboard'
+        this.$router.push(redirect)
       } catch (error) {
-        if (error.response && error.response.data) {
-          this.error = error.response.data.message || 'Erro ao fazer login'
+        console.error('Erro detalhado no login:', error)
+        if (error.message) {
+          this.error = error.message
+        } else if (error.error) {
+          this.error = error.error
+        } else if (error.response?.data?.message) {
+          this.error = error.response.data.message
         } else {
-          this.error = 'Erro de conexão. Tente novamente.'
+          this.error = 'Erro ao fazer login. Verifique suas credenciais e tente novamente.'
         }
-        console.error('Login error:', error)
       } finally {
         this.loading = false
       }
@@ -100,7 +99,7 @@ export default {
   },
   mounted() {
     // Redirect if already logged in
-    const token = localStorage.getItem('auth_token')
+    const token = localStorage.getItem('token')
     if (token) {
       this.$router.push('/dashboard')
     }
@@ -114,6 +113,7 @@ export default {
   min-height: 100vh;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .auth-container {
@@ -121,6 +121,10 @@ export default {
   justify-content: center;
   align-items: center;
   min-height: 80vh;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .auth-card {
@@ -130,6 +134,7 @@ export default {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  margin: 0 auto;
 }
 
 .auth-header {

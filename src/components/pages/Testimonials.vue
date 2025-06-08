@@ -1,4 +1,3 @@
-
 <template>
   <div class="testimonials">
     <section class="section">
@@ -29,7 +28,8 @@
         </div>
         
         <div v-else class="loading">
-          <p>Carregando depoimentos...</p>
+          <p v-if="error" class="error-message">{{ error }}</p>
+          <p v-else>Carregando depoimentos...</p>
         </div>
         
         <div class="cta-section">
@@ -45,14 +45,15 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { testimonialsService } from '../../services/testimonials'
 
 export default {
   name: 'Testimonials',
   data() {
     return {
       testimonials: [],
-      loading: false
+      loading: false,
+      error: ''
     }
   },
   async mounted() {
@@ -62,10 +63,16 @@ export default {
     async loadTestimonials() {
       try {
         this.loading = true
-        const response = await axios.get('/testimonials')
-        this.testimonials = response.data.testimonials
+        this.error = ''
+        const response = await testimonialsService.getTestimonials()
+        if (response.testimonials && Array.isArray(response.testimonials)) {
+          this.testimonials = response.testimonials
+        } else {
+          throw new Error('Formato de resposta inválido')
+        }
       } catch (error) {
         console.error('Error loading testimonials:', error)
+        this.error = error.message || 'Erro ao carregar depoimentos. Tente novamente mais tarde.'
       } finally {
         this.loading = false
       }

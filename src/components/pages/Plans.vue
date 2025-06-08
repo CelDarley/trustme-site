@@ -1,4 +1,3 @@
-
 <template>
   <div class="plans">
     <section class="section">
@@ -82,7 +81,8 @@
         </div>
         
         <div v-else class="loading">
-          <p>Carregando planos...</p>
+          <p v-if="error" class="error-message">{{ error }}</p>
+          <p v-else>Carregando planos...</p>
         </div>
       </div>
     </section>
@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { plansService } from '../../services/plans'
 
 export default {
   name: 'Plans',
@@ -98,7 +98,8 @@ export default {
     return {
       plans: [],
       billingCycle: 'monthly',
-      loading: false
+      loading: false,
+      error: ''
     }
   },
   async mounted() {
@@ -108,25 +109,36 @@ export default {
     async loadPlans() {
       try {
         this.loading = true
-        const response = await axios.get('/plans')
-        this.plans = response.data.plans
+        this.error = ''
+        const response = await plansService.getPlans()
+        if (response.plans && Array.isArray(response.plans)) {
+          this.plans = response.plans
+        } else {
+          throw new Error('Formato de resposta inválido')
+        }
       } catch (error) {
         console.error('Error loading plans:', error)
+        this.error = error.message || 'Erro ao carregar planos. Tente novamente mais tarde.'
       } finally {
         this.loading = false
       }
     },
     getPrice(plan) {
+      let price;
       switch (this.billingCycle) {
         case 'monthly':
-          return plan.monthly_price.toFixed(2).replace('.', ',')
+          price = parseFloat(plan.monthly_price);
+          break;
         case 'six_months':
-          return plan.six_months_price.toFixed(2).replace('.', ',')
+          price = parseFloat(plan.six_months_price);
+          break;
         case 'yearly':
-          return plan.yearly_price.toFixed(2).replace('.', ',')
+          price = parseFloat(plan.yearly_price);
+          break;
         default:
-          return plan.monthly_price.toFixed(2).replace('.', ',')
+          price = parseFloat(plan.monthly_price);
       }
+      return price.toFixed(2).replace('.', ',');
     },
     getPeriodText() {
       switch (this.billingCycle) {

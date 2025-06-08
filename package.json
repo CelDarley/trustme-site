@@ -8,9 +8,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.9.0",
+    "path": "^0.12.7",
     "vue": "^3.5.16",
-    "vue-router": "^4.5.1",
-    "axios": "^1.6.0"
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.4",
