@@ -78,9 +78,16 @@ export default {
         const response = await authService.login(this.form)
         console.log('Login bem sucedido:', response)
         
-        // Redirect to dashboard or intended page
-        const redirect = this.$route.query.redirect || '/dashboard'
-        this.$router.push(redirect)
+        // Salvar token e dados do usuário
+        localStorage.setItem('auth_token', response.token)
+        localStorage.setItem('user', JSON.stringify(response.user))
+        
+        // Redirecionar baseado no tipo de usuário
+        if (response.user.is_admin) {
+          this.$router.push('/admin')
+        } else {
+          this.$router.push('/dashboard')
+        }
       } catch (error) {
         console.error('Erro detalhado no login:', error)
         if (error.message) {

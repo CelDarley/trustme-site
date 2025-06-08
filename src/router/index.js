@@ -1,4 +1,3 @@
-
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../components/pages/Home.vue'
 import Plans from '../components/pages/Plans.vue'
@@ -9,6 +8,13 @@ import Testimonials from '../components/pages/Testimonials.vue'
 import Login from '../components/auth/Login.vue'
 import Register from '../components/auth/Register.vue'
 import Dashboard from '../components/dashboard/Dashboard.vue'
+import AdminDashboard from '../components/admin/Dashboard.vue'
+import AdminHome from '../components/admin/Home.vue'
+import AdminPlans from '../components/admin/Plans.vue'
+import AdminTestimonials from '../components/admin/Testimonials.vue'
+import AdminAbout from '../components/admin/About.vue'
+import AdminContact from '../components/admin/Contact.vue'
+import AdminFAQ from '../components/admin/FAQ.vue'
 
 const routes = [
     {
@@ -56,6 +62,44 @@ const routes = [
         name: 'Dashboard',
         component: Dashboard,
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/admin',
+        name: 'AdminDashboard',
+        component: AdminDashboard,
+        meta: { requiresAuth: true, requiresAdmin: true },
+        children: [
+            {
+                path: 'home',
+                name: 'AdminHome',
+                component: AdminHome
+            },
+            {
+                path: 'plans',
+                name: 'AdminPlans',
+                component: AdminPlans
+            },
+            {
+                path: 'testimonials',
+                name: 'AdminTestimonials',
+                component: AdminTestimonials
+            },
+            {
+                path: 'about',
+                name: 'AdminAbout',
+                component: AdminAbout
+            },
+            {
+                path: 'contact',
+                name: 'AdminContact',
+                component: AdminContact
+            },
+            {
+                path: 'faq',
+                name: 'AdminFAQ',
+                component: AdminFAQ
+            }
+        ]
     }
 ]
 
@@ -67,10 +111,13 @@ const router = createRouter({
 // Navigation guard for protected routes
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('auth_token')
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
     
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (!token) {
             next('/login')
+        } else if (to.matched.some(record => record.meta.requiresAdmin) && !user.is_admin) {
+            next('/dashboard')
         } else {
             next()
         }

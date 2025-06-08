@@ -1,4 +1,3 @@
-
 <template>
   <div class="faq">
     <section class="section">
@@ -46,7 +45,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { faqService } from '@/services/faq'
 
 export default {
   name: 'FAQ',
@@ -64,10 +63,10 @@ export default {
     async loadFaqs() {
       try {
         this.loading = true
-        const response = await axios.get('/faqs')
-        this.faqs = response.data.faqs
+        const response = await faqService.getFAQs()
+        this.faqs = response.faqs || []
       } catch (error) {
-        console.error('Error loading FAQs:', error)
+        console.error('Erro ao carregar FAQs:', error)
       } finally {
         this.loading = false
       }
@@ -198,15 +197,6 @@ export default {
   
   .faq-question {
     padding: 1rem 1.5rem;
-    font-size: 1rem;
-  }
-  
-  .faq-answer {
-    padding: 0 1.5rem 1rem;
-  }
-  
-  .faq-contact {
-    position: static;
   }
 }
 </style>

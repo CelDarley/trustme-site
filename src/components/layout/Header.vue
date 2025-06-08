@@ -1,4 +1,3 @@
-
 <template>
   <header class="header">
     <div class="container">
@@ -39,7 +38,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { api } from '@/config/api'
 
 export default {
   name: 'Header',
@@ -65,12 +64,12 @@ export default {
     },
     async logout() {
       try {
-        await axios.post('/logout')
+        await api.post('/logout')
       } catch (error) {
         console.error('Logout error:', error)
       } finally {
         localStorage.removeItem('auth_token')
-        delete axios.defaults.headers.common['Authorization']
+        delete api.defaults.headers.common['Authorization']
         this.isAuthenticated = false
         this.$router.push('/')
       }

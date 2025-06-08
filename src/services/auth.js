@@ -8,7 +8,7 @@ export const authService = {
             console.log('Resposta do servidor:', response.data);
             
             if (response.data && response.data.token) {
-                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('auth_token', response.data.token);
                 return response.data;
             }
             throw new Error('Resposta inválida do servidor');
@@ -40,7 +40,7 @@ export const authService = {
     async logout() {
         try {
             await api.post('/logout');
-            localStorage.removeItem('token');
+            localStorage.removeItem('auth_token');
         } catch (error) {
             console.error('Erro ao fazer logout:', error);
         }
